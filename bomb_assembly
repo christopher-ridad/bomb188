@@ -422,52 +422,55 @@ Disassembly of section .text:
   4010a4:	e8 68 05 00 00       	callq  401611 <explode_bomb>
   4010a9:	eb f4                	jmp    40109f <phase3+0x145>
 
-00000000004010ab <func4>:
+00000000004010ab <func4>:                                   #some sort of recursive function
   4010ab:	53                   	push   %rbx
-  4010ac:	89 d0                	mov    %edx,%eax
-  4010ae:	29 f0                	sub    %esi,%eax
-  4010b0:	89 c3                	mov    %eax,%ebx
-  4010b2:	c1 eb 1f             	shr    $0x1f,%ebx
-  4010b5:	01 c3                	add    %eax,%ebx
-  4010b7:	d1 fb                	sar    %ebx
-  4010b9:	01 f3                	add    %esi,%ebx
-  4010bb:	39 fb                	cmp    %edi,%ebx
+  4010ac:	89 d0                	mov    %edx,%eax            #eax is 0xe
+  4010ae:	29 f0                	sub    %esi,%eax            #eax = 0xe - 0
+  4010b0:	89 c3                	mov    %eax,%ebx            #ebx = 0xe
+  4010b2:	c1 eb 1f             	shr    $0x1f,%ebx           #ebx shift right by 31
+  4010b5:	01 c3                	add    %eax,%ebx            #ebx = ebx + 0xe
+  4010b7:	d1 fb                	sar    %ebx                 # shift ebx right 1
+  4010b9:	01 f3                	add    %esi,%ebx            #add esi (0) to ebx
+  4010bb:	39 fb                	cmp    %edi,%ebx            #cmp first number to ebx
   4010bd:	7f 06                	jg     4010c5 <func4+0x1a>
   4010bf:	7c 10                	jl     4010d1 <func4+0x26>
-  4010c1:	89 d8                	mov    %ebx,%eax
+  4010c1:	89 d8                	mov    %ebx,%eax             #ebx must be 13 (0xd)
   4010c3:	5b                   	pop    %rbx
   4010c4:	c3                   	retq   
+                                                            #if ebx greater
   4010c5:	8d 53 ff             	lea    -0x1(%rbx),%edx
   4010c8:	e8 de ff ff ff       	callq  4010ab <func4>
   4010cd:	01 c3                	add    %eax,%ebx
   4010cf:	eb f0                	jmp    4010c1 <func4+0x16>
+                                                            # if ebx lesser
   4010d1:	8d 73 01             	lea    0x1(%rbx),%esi
   4010d4:	e8 d2 ff ff ff       	callq  4010ab <func4>
   4010d9:	01 c3                	add    %eax,%ebx
   4010db:	eb e4                	jmp    4010c1 <func4+0x16>
 
 00000000004010dd <phase4>:
-  4010dd:	48 83 ec 18          	sub    $0x18,%rsp
-  4010e1:	48 8d 4c 24 08       	lea    0x8(%rsp),%rcx
+  4010dd:	48 83 ec 18          	sub    $0x18,%rsp                    # sub from stack pointer
+  4010e1:	48 8d 4c 24 08       	lea    0x8(%rsp),%rcx                #save vars
   4010e6:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
-  4010eb:	be 4e 2c 40 00       	mov    $0x402c4e,%esi
-  4010f0:	b8 00 00 00 00       	mov    $0x0,%eax
-  4010f5:	e8 36 fb ff ff       	callq  400c30 <__isoc99_sscanf@plt>
-  4010fa:	83 f8 02             	cmp    $0x2,%eax
-  4010fd:	75 07                	jne    401106 <phase4+0x29>
-  4010ff:	83 7c 24 0c 0e       	cmpl   $0xe,0xc(%rsp)
-  401104:	76 05                	jbe    40110b <phase4+0x2e>
+  4010eb:	be 4e 2c 40 00       	mov    $0x402c4e,%esi                #puts address into esi
+  4010f0:	b8 00 00 00 00       	mov    $0x0,%eax                     # puts 0 into eax
+  4010f5:	e8 36 fb ff ff       	callq  400c30 <__isoc99_sscanf@plt>  #  takes in 2 decimal numbers, order is reversed, second number in rax
+                                                                    # first number in rsp + 12
+  4010fa:	83 f8 02             	cmp    $0x2,%eax                     # first number is 2
+  4010fd:	75 07                	jne    401106 <phase4+0x29>          #if neq, explode
+  4010ff:	83 7c 24 0c 0e       	cmpl   $0xe,0xc(%rsp)                # (rsp) + 12 <= 0xe (14)
+  401104:	76 05                	jbe    40110b <phase4+0x2e>          #if beq, then proceed
   401106:	e8 06 05 00 00       	callq  401611 <explode_bomb>
-  40110b:	ba 0e 00 00 00       	mov    $0xe,%edx
-  401110:	be 00 00 00 00       	mov    $0x0,%esi
-  401115:	8b 7c 24 0c          	mov    0xc(%rsp),%edi
+  40110b:	ba 0e 00 00 00       	mov    $0xe,%edx                     # put 0xe into edx
+  401110:	be 00 00 00 00       	mov    $0x0,%esi                     #puts 0 into esi
+  401115:	8b 7c 24 0c          	mov    0xc(%rsp),%edi                #puts stack pointer + 12 into edi, (see above for what val is)
   401119:	e8 8d ff ff ff       	callq  4010ab <func4>
-  40111e:	83 f8 0d             	cmp    $0xd,%eax
-  401121:	75 07                	jne    40112a <phase4+0x4d>
-  401123:	83 7c 24 08 0d       	cmpl   $0xd,0x8(%rsp)
+  40111e:	83 f8 0d             	cmp    $0xd,%eax                     # func4 return must equal 0xd (13)   #first number = 2? that got it to d
+  401121:	75 07                	jne    40112a <phase4+0x4d>         
+  401123:	83 7c 24 08 0d       	cmpl   $0xd,0x8(%rsp)                # if rsp + 8 = 13, proceed
   401128:	74 05                	je     40112f <phase4+0x52>
   40112a:	e8 e2 04 00 00       	callq  401611 <explode_bomb>
-  40112f:	48 83 c4 18          	add    $0x18,%rsp
+  40112f:	48 83 c4 18          	add    $0x18,%rsp                    #put stack space back, retq
   401133:	c3                   	retq   
 
 0000000000401134 <phase5>:
