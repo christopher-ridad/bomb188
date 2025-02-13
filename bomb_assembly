@@ -477,29 +477,31 @@ Disassembly of section .text:
   401134:	48 83 ec 18          	sub    $0x18,%rsp
   401138:	48 8d 4c 24 08       	lea    0x8(%rsp),%rcx
   40113d:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
-  401142:	be 4e 2c 40 00       	mov    $0x402c4e,%esi
-  401147:	b8 00 00 00 00       	mov    $0x0,%eax
+  401142:	be 4e 2c 40 00       	mov    $0x402c4e,%esi                #boilerplate stuffs
+  401147:	b8 00 00 00 00       	mov    $0x0,%eax                     #eax = 0
   40114c:	e8 df fa ff ff       	callq  400c30 <__isoc99_sscanf@plt>
-  401151:	83 f8 01             	cmp    $0x1,%eax
+  401151:	83 f8 01             	cmp    $0x1,%eax                     # num inputs > 1
   401154:	7e 4a                	jle    4011a0 <phase5+0x6c>
-  401156:	8b 44 24 0c          	mov    0xc(%rsp),%eax
-  40115a:	83 e0 0f             	and    $0xf,%eax
-  40115d:	89 44 24 0c          	mov    %eax,0xc(%rsp)
-  401161:	83 f8 0f             	cmp    $0xf,%eax
+  401156:	8b 44 24 0c          	mov    0xc(%rsp),%eax                #eax = rsp + 12
+  40115a:	83 e0 0f             	and    $0xf,%eax                     #saves the smallest 4 bits
+  40115d:	89 44 24 0c          	mov    %eax,0xc(%rsp)                #puts it back in rsp + 12 
+  401161:	83 f8 0f             	cmp    $0xf,%eax                     #if eax = f, explode
   401164:	74 30                	je     401196 <phase5+0x62>
-  401166:	b9 00 00 00 00       	mov    $0x0,%ecx
-  40116b:	ba 00 00 00 00       	mov    $0x0,%edx
-  401170:	83 c2 01             	add    $0x1,%edx
+  401166:	b9 00 00 00 00       	mov    $0x0,%ecx                     #ecx = 0
+  40116b:	ba 00 00 00 00       	mov    $0x0,%edx                     #edx = 0
+   
+  401170:	83 c2 01             	add    $0x1,%edx                     #edx += 1
   401173:	48 98                	cltq   
-  401175:	8b 04 85 e0 25 40 00 	mov    0x4025e0(,%rax,4),%eax
-  40117c:	01 c1                	add    %eax,%ecx
-  40117e:	83 f8 0f             	cmp    $0xf,%eax
-  401181:	75 ed                	jne    401170 <phase5+0x3c>
+  401175:	8b 04 85 e0 25 40 00 	mov    0x4025e0(,%rax,4),%eax        #eax = address + 4*rax
+  40117c:	01 c1                	add    %eax,%ecx                     # ecx += eax
+  40117e:	83 f8 0f             	cmp    $0xf,%eax                      
+  401181:	75 ed                	jne    401170 <phase5+0x3c>           #if eax not 0xf, loop, add one to edx, and 
+
   401183:	c7 44 24 0c 0f 00 00 	movl   $0xf,0xc(%rsp)
   40118a:	00 
-  40118b:	83 fa 0b             	cmp    $0xb,%edx
+  40118b:	83 fa 0b             	cmp    $0xb,%edx                     #for loop counter == 11
   40118e:	75 06                	jne    401196 <phase5+0x62>
-  401190:	39 4c 24 08          	cmp    %ecx,0x8(%rsp)
+  401190:	39 4c 24 08          	cmp    %ecx,0x8(%rsp)                #ecx (iterator) == second num
   401194:	74 05                	je     40119b <phase5+0x67>
   401196:	e8 76 04 00 00       	callq  401611 <explode_bomb>
   40119b:	48 83 c4 18          	add    $0x18,%rsp
@@ -508,7 +510,7 @@ Disassembly of section .text:
   4011a5:	eb af                	jmp    401156 <phase5+0x22>
 
 00000000004011a7 <phase6>:
-  4011a7:	41 57                	push   %r15
+  4011a7:	41 57                	push   %r15                    #just a bunch of for loops for input checking, input checking
   4011a9:	41 56                	push   %r14
   4011ab:	41 55                	push   %r13
   4011ad:	41 54                	push   %r12
