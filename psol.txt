@@ -1,4 +1,7 @@
 Who is the spiciest memelord?
-0 4 4 8 12 20
+0 4 4 8 12 20 hunter2
 1 o180
 2 13
+11 82
+6 3 4 2 1 5
+35

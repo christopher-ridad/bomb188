@@ -364,15 +364,15 @@ Disassembly of section .text:
   400fb1:	e8 5b 06 00 00       	callq  401611 <explode_bomb>
   400fb6:	b8 63 00 00 00       	mov    $0x63,%eax
   400fbb:	e9 d9 00 00 00       	jmpq   401099 <phase3+0x13f>
-  400fc0:	b8 6f 00 00 00       	mov    $0x6f,%eax                     # jump here when first number is 1, eax = 6f = 
+  400fc0:	b8 6f 00 00 00       	mov    $0x6f,%eax                     # jump here when first number is 1, eax = 6f = o
   400fc5:	81 7c 24 08 b4 00 00 	cmpl   $0xb4,0x8(%rsp)                # compares second to 0xb4 = 180
   400fcc:	00 
   400fcd:	0f 84 c6 00 00 00    	je     401099 <phase3+0x13f>
   400fd3:	e8 39 06 00 00       	callq  401611 <explode_bomb>
   400fd8:	b8 6f 00 00 00       	mov    $0x6f,%eax
   400fdd:	e9 b7 00 00 00       	jmpq   401099 <phase3+0x13f>
-  400fe2:	b8 6b 00 00 00       	mov    $0x6b,%eax
-  400fe7:	81 7c 24 08 80 00 00 	cmpl   $0x80,0x8(%rsp)
+  400fe2:	b8 6b 00 00 00       	mov    $0x6b,%eax                     # jump here when second number is 2, eax = 6b = k
+  400fe7:	81 7c 24 08 80 00 00 	cmpl   $0x80,0x8(%rsp)                # compares second to 0x80 = 128
   400fee:	00 
   400fef:	0f 84 a4 00 00 00    	je     401099 <phase3+0x13f>
   400ff5:	e8 17 06 00 00       	callq  401611 <explode_bomb>
@@ -449,25 +449,27 @@ Disassembly of section .text:
   4010db:	eb e4                	jmp    4010c1 <func4+0x16>
 
 00000000004010dd <phase4>:
-  4010dd:	48 83 ec 18          	sub    $0x18,%rsp
-  4010e1:	48 8d 4c 24 08       	lea    0x8(%rsp),%rcx
+  4010dd:	48 83 ec 18          	sub    $0x18,%rsp                       # Set up rsi        
+  4010e1:	48 8d 4c 24 08       	lea    0x8(%rsp),%rcx                   # Saves values
   4010e6:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
-  4010eb:	be 4e 2c 40 00       	mov    $0x402c4e,%esi
-  4010f0:	b8 00 00 00 00       	mov    $0x0,%eax
-  4010f5:	e8 36 fb ff ff       	callq  400c30 <__isoc99_sscanf@plt>
-  4010fa:	83 f8 02             	cmp    $0x2,%eax
-  4010fd:	75 07                	jne    401106 <phase4+0x29>
-  4010ff:	83 7c 24 0c 0e       	cmpl   $0xe,0xc(%rsp)
-  401104:	76 05                	jbe    40110b <phase4+0x2e>
+  4010eb:	be 4e 2c 40 00       	mov    $0x402c4e,%esi                   # Puts address into esi
+  4010f0:	b8 00 00 00 00       	mov    $0x0,%eax                        # Puts 0 into eax
+  4010f5:	e8 36 fb ff ff       	callq  400c30 <__isoc99_sscanf@plt>     # Takes in 2 decimal numbers, order is reversed in memory, eax has the first number
+  4010fa:	83 f8 02             	cmp    $0x2,%eax                        # Compares eax to 2
+  4010fd:	75 07                	jne    401106 <phase4+0x29>             # eax must be 2 (2 inputs)
+  4010ff:	83 7c 24 0c 0e       	cmpl   $0xe,0xc(%rsp)                   #  if rsp = 12 is < 0xe, then jump (first number must be less than 14)
+  401104:	76 05                	jbe    40110b <phase4+0x2e> 
   401106:	e8 06 05 00 00       	callq  401611 <explode_bomb>
-  40110b:	ba 0e 00 00 00       	mov    $0xe,%edx
-  401110:	be 00 00 00 00       	mov    $0x0,%esi
-  401115:	8b 7c 24 0c          	mov    0xc(%rsp),%edi
-  401119:	e8 8d ff ff ff       	callq  4010ab <func4>
-  40111e:	83 f8 0d             	cmp    $0xd,%eax
-  401121:	75 07                	jne    40112a <phase4+0x4d>
-  401123:	83 7c 24 08 0d       	cmpl   $0xd,0x8(%rsp)
-  401128:	74 05                	je     40112f <phase4+0x52>
+
+  ### Jump here ###
+  40110b:	ba 0e 00 00 00       	mov    $0xe,%edx                        # Put 0xe into edx 
+  401110:	be 00 00 00 00       	mov    $0x0,%esi                        # Puts 0 into esi
+  401115:	8b 7c 24 0c          	mov    0xc(%rsp),%edi                   # Puts stack points + 12 into edi
+  401119:	e8 8d ff ff ff       	callq  4010ab <func4>                   # Calls function
+  40111e:	83 f8 0d             	cmp    $0xd,%eax                        # func4 must return 0xd (13)
+  401121:	75 07                	jne    40112a <phase4+0x4d>             
+  401123:	83 7c 24 08 0d       	cmpl   $0xd,0x8(%rsp)                   # Second input has to be 13 for this to work
+  401128:	74 05                	je     40112f <phase4+0x52>         
   40112a:	e8 e2 04 00 00       	callq  401611 <explode_bomb>
   40112f:	48 83 c4 18          	add    $0x18,%rsp
   401133:	c3                   	retq   
@@ -479,27 +481,31 @@ Disassembly of section .text:
   401142:	be 4e 2c 40 00       	mov    $0x402c4e,%esi
   401147:	b8 00 00 00 00       	mov    $0x0,%eax
   40114c:	e8 df fa ff ff       	callq  400c30 <__isoc99_sscanf@plt>
-  401151:	83 f8 01             	cmp    $0x1,%eax
+  401151:	83 f8 01             	cmp    $0x1,%eax                        # Number of inputs must be greater than 1
   401154:	7e 4a                	jle    4011a0 <phase5+0x6c>
-  401156:	8b 44 24 0c          	mov    0xc(%rsp),%eax
-  40115a:	83 e0 0f             	and    $0xf,%eax
-  40115d:	89 44 24 0c          	mov    %eax,0xc(%rsp)
-  401161:	83 f8 0f             	cmp    $0xf,%eax
+  401156:	8b 44 24 0c          	mov    0xc(%rsp),%eax                   # Gets the first number
+  40115a:	83 e0 0f             	and    $0xf,%eax                        
+  40115d:	89 44 24 0c          	mov    %eax,0xc(%rsp)                 
+  401161:	83 f8 0f             	cmp    $0xf,%eax                        # The number cannot be = 15
   401164:	74 30                	je     401196 <phase5+0x62>
-  401166:	b9 00 00 00 00       	mov    $0x0,%ecx
-  40116b:	ba 00 00 00 00       	mov    $0x0,%edx
-  401170:	83 c2 01             	add    $0x1,%edx
+  401166:	b9 00 00 00 00       	mov    $0x0,%ecx                        # ecx = 0
+  40116b:	ba 00 00 00 00       	mov    $0x0,%edx                        # edx = 0
+
+  ### Loop jumps here  ### 
+  # This is essentially jumping around in the array, getting a number, and then jumping to a new address to get a new number based on the old number.
+  # Should just return their sum once 0xf is hit.
+  401170:	83 c2 01             	add    $0x1,%edx                        # edx += 1
   401173:	48 98                	cltq   
-  401175:	8b 04 85 e0 25 40 00 	mov    0x4025e0(,%rax,4),%eax
-  40117c:	01 c1                	add    %eax,%ecx
-  40117e:	83 f8 0f             	cmp    $0xf,%eax
+  401175:	8b 04 85 e0 25 40 00 	mov    0x4025e0(,%rax,4),%eax           # Array access, puts element into eax
+  40117c:	01 c1                	add    %eax,%ecx                        # Adds eax to ecx (ecx has the sum)
+  40117e:	83 f8 0f             	cmp    $0xf,%eax                        # Keeps looping this until eax = 15 (0xf)
   401181:	75 ed                	jne    401170 <phase5+0x3c>
-  401183:	c7 44 24 0c 0f 00 00 	movl   $0xf,0xc(%rsp)
+  401183:	c7 44 24 0c 0f 00 00 	movl   $0xf,0xc(%rsp)                  
   40118a:	00 
-  40118b:	83 fa 0b             	cmp    $0xb,%edx
-  40118e:	75 06                	jne    401196 <phase5+0x62>
-  401190:	39 4c 24 08          	cmp    %ecx,0x8(%rsp)
-  401194:	74 05                	je     40119b <phase5+0x67>
+  40118b:	83 fa 0b             	cmp    $0xb,%edx                        # edx must = 11 here (loop 11 times)
+  40118e:	75 06                	jne    401196 <phase5+0x62>           
+  401190:	39 4c 24 08          	cmp    %ecx,0x8(%rsp)                   # After 11 loops, the sum in ecx should equal the second input to pass this phase         
+  401194:	74 05                	je     40119b <phase5+0x67>             # This can only work if the original offset in the loop was 11 (first number must be 11)
   401196:	e8 76 04 00 00       	callq  401611 <explode_bomb>
   40119b:	48 83 c4 18          	add    $0x18,%rsp
   40119f:	c3                   	retq   
@@ -515,59 +521,85 @@ Disassembly of section .text:
   4011b0:	53                   	push   %rbx
   4011b1:	48 83 ec 58          	sub    $0x58,%rsp
   4011b5:	48 8d 74 24 30       	lea    0x30(%rsp),%rsi
-  4011ba:	e8 88 04 00 00       	callq  401647 <read_six_numbers>
-  4011bf:	4c 8d 6c 24 30       	lea    0x30(%rsp),%r13
-  4011c4:	4d 8d 7d 14          	lea    0x14(%r13),%r15
-  4011c8:	4d 89 ec             	mov    %r13,%r12
-  4011cb:	41 be 01 00 00 00    	mov    $0x1,%r14d
-  4011d1:	eb 28                	jmp    4011fb <phase6+0x54>
+  4011ba:	e8 88 04 00 00       	callq  401647 <read_six_numbers>                # reads six numbers in the form # # # # # #
+  4011bf:	4c 8d 6c 24 30       	lea    0x30(%rsp),%r13                          # r13 = address of the first number and onward
+  4011c4:	4d 8d 7d 14          	lea    0x14(%r13),%r15                          # r15 = address of the sixth number
+  4011c8:	4d 89 ec             	mov    %r13,%r12                                # r12 = same as r13
+  4011cb:	41 be 01 00 00 00    	mov    $0x1,%r14d                               # r14 now has 0x1 or 1
+  4011d1:	eb 28                	jmp    4011fb <phase6+0x54>                     #  Automatically jumps down (#1)
   4011d3:	e8 39 04 00 00       	callq  401611 <explode_bomb>
   4011d8:	eb 30                	jmp    40120a <phase6+0x63>
-  4011da:	48 83 c3 01          	add    $0x1,%rbx
-  4011de:	83 fb 05             	cmp    $0x5,%ebx
-  4011e1:	7f 10                	jg     4011f3 <phase6+0x4c>
-  4011e3:	8b 44 9c 30          	mov    0x30(%rsp,%rbx,4),%eax
-  4011e7:	39 45 00             	cmp    %eax,0x0(%rbp)
-  4011ea:	75 ee                	jne    4011da <phase6+0x33>
+
+  ### This just seems to be a nested for loop that checks if the 6 numbers inputted are all unique and less than or equal to 6
+
+  ### Jump up here (#3) ###
+  4011da:	48 83 c3 01          	add    $0x1,%rbx                               # adds 1 to rbx (now 2)
+  4011de:	83 fb 05             	cmp    $0x5,%ebx                               # compares rbx to 5
+  4011e1:	7f 10                	jg     4011f3 <phase6+0x4c>                    # indication that this is a loop, skips jump until rbx is 6
+
+  ### Jump up here (#2) ###
+  4011e3:	8b 44 9c 30          	mov    0x30(%rsp,%rbx,4),%eax                  # address at rsp + 4 * address at rbx + 0x30 set to eax (second number)
+  4011e7:	39 45 00             	cmp    %eax,0x0(%rbp)                          # compares rbp to eax -> first number must not equal second number
+  4011ea:	75 ee                	jne    4011da <phase6+0x33>                    # they must not be equal (jumps if true (#3)), if they are,  then explode_bomb
   4011ec:	e8 20 04 00 00       	callq  401611 <explode_bomb>
   4011f1:	eb e7                	jmp    4011da <phase6+0x33>
-  4011f3:	49 83 c6 01          	add    $0x1,%r14
-  4011f7:	49 83 c4 04          	add    $0x4,%r12
-  4011fb:	4c 89 e5             	mov    %r12,%rbp
-  4011fe:	41 8b 04 24          	mov    (%r12),%eax
-  401202:	83 e8 01             	sub    $0x1,%eax
-  401205:	83 f8 05             	cmp    $0x5,%eax
-  401208:	77 c9                	ja     4011d3 <phase6+0x2c>
-  40120a:	4d 39 fc             	cmp    %r15,%r12
-  40120d:	74 05                	je     401214 <phase6+0x6d>
-  40120f:	4c 89 f3             	mov    %r14,%rbx
-  401212:	eb cf                	jmp    4011e3 <phase6+0x3c>
-  401214:	49 8d 4d 18          	lea    0x18(%r13),%rcx
-  401218:	ba 07 00 00 00       	mov    $0x7,%edx
-  40121d:	89 d0                	mov    %edx,%eax
-  40121f:	41 2b 45 00          	sub    0x0(%r13),%eax
-  401223:	41 89 45 00          	mov    %eax,0x0(%r13)
-  401227:	49 83 c5 04          	add    $0x4,%r13
-  40122b:	4c 39 e9             	cmp    %r13,%rcx
-  40122e:	75 ed                	jne    40121d <phase6+0x76>
-  401230:	be 00 00 00 00       	mov    $0x0,%esi
-  401235:	8b 4c b4 30          	mov    0x30(%rsp,%rsi,4),%ecx
-  401239:	b8 01 00 00 00       	mov    $0x1,%eax
-  40123e:	ba f0 42 60 00       	mov    $0x6042f0,%edx
-  401243:	83 f9 01             	cmp    $0x1,%ecx
-  401246:	7e 0b                	jle    401253 <phase6+0xac>
-  401248:	48 8b 52 08          	mov    0x8(%rdx),%rdx
-  40124c:	83 c0 01             	add    $0x1,%eax
-  40124f:	39 c8                	cmp    %ecx,%eax
-  401251:	75 f5                	jne    401248 <phase6+0xa1>
-  401253:	48 89 14 f4          	mov    %rdx,(%rsp,%rsi,8)
-  401257:	48 83 c6 01          	add    $0x1,%rsi
-  40125b:	48 83 fe 06          	cmp    $0x6,%rsi
-  40125f:	75 d4                	jne    401235 <phase6+0x8e>
-  401261:	48 8b 1c 24          	mov    (%rsp),%rbx
-  401265:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
-  40126a:	48 89 43 08          	mov    %rax,0x8(%rbx)
-  40126e:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx
+  4011f3:	49 83 c6 01          	add    $0x1,%r14                               # adds 1 to r14
+  4011f7:	49 83 c4 04          	add    $0x4,%r12                               # adds 4 to r12 (moves ahead four)
+
+  ### Jump down here (#1) ###
+  4011fb:	4c 89 e5             	mov    %r12,%rbp                               # rbp = same as r12 (see above)
+  4011fe:	41 8b 04 24          	mov    (%r12),%eax                             # eax = the value at the address of r12 (first number)
+  401202:	83 e8 01             	sub    $0x1,%eax                               # subtract 1 from the value that eax has (first number - 1)
+  401205:	83 f8 05             	cmp    $0x5,%eax                               # compares eax to 5 
+        
+  401208:	77 c9                	ja     4011d3 <phase6+0x2c>                    # if eax (first number - 1) is above 5, then explode_bomb; eax must less than or equal to 5
+  40120a:	4d 39 fc             	cmp    %r15,%r12                               # compares r12 and r15
+
+  40120d:	74 05                	je     401214 <phase6+0x6d>                    # if r15 and r12 point to different addresses (which seems to always be the case), keep moving on
+  40120f:	4c 89 f3             	mov    %r14,%rbx                               # rbx = same as r14 (just the number 1)                  
+  401212:	eb cf                	jmp    4011e3 <phase6+0x3c>                    # Automatically jumps up (#2)
+
+  ### Nested for loop ends, all numbers are determined to be unique
+  401214:	49 8d 4d 18          	lea    0x18(%r13),%rcx                         # puts the address of address r13 + 0x18
+  401218:	ba 07 00 00 00       	mov    $0x7,%edx                               # edx = 7
+
+  ### This loop changes the inputs to the difference of (7 - inputted number)
+  ### Jumps up here (#4) ###
+  40121d:	89 d0                	mov    %edx,%eax                               # eax = edx (7)
+  40121f:	41 2b 45 00          	sub    0x0(%r13),%eax                          # 7 - first number in eax
+  401223:	41 89 45 00          	mov    %eax,0x0(%r13)                          # moves the previous result into where the first number was in r13
+  401227:	49 83 c5 04          	add    $0x4,%r13                               # moves to next number (second number)
+  40122b:	4c 39 e9             	cmp    %r13,%rcx                               # compares r13 to rcx
+  40122e:	75 ed                	jne    40121d <phase6+0x76>                    # if not equal, jump up (#4)
+
+  401230:	be 00 00 00 00       	mov    $0x0,%esi                               # rsi = 0
+
+  # Another nested loop. (#6)
+  401235:	8b 4c b4 30          	mov    0x30(%rsp,%rsi,4),%ecx                  # ecx = gets the inverted first inputted number as explained by the loop before this, eventually gets every number
+  401239:	b8 01 00 00 00       	mov    $0x1,%eax                               # eax is 1
+  40123e:	ba f0 42 60 00       	mov    $0x6042f0,%edx                          # resets edx to this address every time
+  401243:	83 f9 01             	cmp    $0x1,%ecx                               # compares ecx to 1
+  401246:	7e 0b                	jle    401253 <phase6+0xac>                    # jumps if ecx less than or equal to 1 (#5)
+
+  # Loop here, nested in #6
+  401248:	48 8b 52 08          	mov    0x8(%rdx),%rdx                          # moves rdx to the address 8 bytes ahead
+  40124c:	83 c0 01             	add    $0x1,%eax                               # adds one to eax
+  40124f:	39 c8                	cmp    %ecx,%eax                               # compares eax to ecx
+  401251:	75 f5                	jne    401248 <phase6+0xa1>                    # if ecx and eax are not equal, loop this
+
+  # Jump down here (#5)
+  # Selects an address of rdx in little endian (every 8 bytes). Each address correlates to a number. The addresses and hence the numbers must be sorted from greatest to smallest.
+  401253:	48 89 14 f4          	mov    %rdx,(%rsp,%rsi,8)                      # Puts rdx address in a new location in rsp (scaled by 8 bytes with rsi)
+  401257:	48 83 c6 01          	add    $0x1,%rsi                               # Increment rsi by 1
+  40125b:	48 83 fe 06          	cmp    $0x6,%rsi                               # Compares to 6
+  40125f:	75 d4                	jne    401235 <phase6+0x8e>                    # will keep looping until rsi is 6 (loops 6 times) (#6)
+
+  # End of the above loop
+  # this seems to be performing a specific procedure
+  401261:	48 8b 1c 24          	mov    (%rsp),%rbx                             # Stores those addresses from before (from rdx)
+  401265:	48 8b 44 24 08       	mov    0x8(%rsp),%rax                          # This does a whole bunch of memory allocations for value comparisons                 
+  40126a:	48 89 43 08          	mov    %rax,0x8(%rbx)                          
+  40126e:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx                    
   401273:	48 89 50 08          	mov    %rdx,0x8(%rax)
   401277:	48 8b 44 24 18       	mov    0x18(%rsp),%rax
   40127c:	48 89 42 08          	mov    %rax,0x8(%rdx)
@@ -576,19 +608,25 @@ Disassembly of section .text:
   401289:	48 8b 44 24 28       	mov    0x28(%rsp),%rax
   40128e:	48 89 42 08          	mov    %rax,0x8(%rdx)
   401292:	48 c7 40 08 00 00 00 	movq   $0x0,0x8(%rax)
-  401299:	00 
-  40129a:	bd 05 00 00 00       	mov    $0x5,%ebp
-  40129f:	eb 09                	jmp    4012aa <phase6+0x103>
+  401299:	00                                                                   
+
+  # last section
+  40129a:	bd 05 00 00 00       	mov    $0x5,%ebp                               # puts 5 in ebp
+  40129f:	eb 09                	jmp    4012aa <phase6+0x103>                   # Automatically just jump down (#7)
+
+  # Jump here (#8)
   4012a1:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
-  4012a5:	83 ed 01             	sub    $0x1,%ebp
-  4012a8:	74 11                	je     4012bb <phase6+0x114>
-  4012aa:	48 8b 43 08          	mov    0x8(%rbx),%rax
-  4012ae:	8b 00                	mov    (%rax),%eax
-  4012b0:	39 03                	cmp    %eax,(%rbx)
-  4012b2:	7d ed                	jge    4012a1 <phase6+0xfa>
+  4012a5:	83 ed 01             	sub    $0x1,%ebp                               # 5 has to get to 0, loops 5 times
+  4012a8:	74 11                	je     4012bb <phase6+0x114>                   # THIS HAS TO BE TRUE TO PASS THE PHASE
+
+  ### Jump here (#7) ###
+  4012aa:	48 8b 43 08          	mov    0x8(%rbx),%rax                          # rax given new address
+  4012ae:	8b 00                	mov    (%rax),%eax                             # eax has a new things now
+  4012b0:	39 03                	cmp    %eax,(%rbx)                             # compare rax to rbx, memory at rbx must be greater than or equal to eax (i.e. a number must be greater than the next one it's compared to)
+  4012b2:	7d ed                	jge    4012a1 <phase6+0xfa>                    # THIS MUST BE TRUE TO SKIP EXPLODE BOMB
   4012b4:	e8 58 03 00 00       	callq  401611 <explode_bomb>
-  4012b9:	eb e6                	jmp    4012a1 <phase6+0xfa>
-  4012bb:	48 83 c4 58          	add    $0x58,%rsp
+  4012b9:	eb e6                	jmp    4012a1 <phase6+0xfa>                    # Jump up again (#8)
+  4012bb:	48 83 c4 58          	add    $0x58,%rsp                              # clear stuff and pass phase
   4012bf:	5b                   	pop    %rbx
   4012c0:	5d                   	pop    %rbp
   4012c1:	41 5c                	pop    %r12
